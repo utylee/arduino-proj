@@ -108,9 +108,12 @@ void loop()
 
 
 }
+
 void increase()
 {
 	minute += 1;
+
+	if(minute >= 99) minute = 99;
 }
 
 void decrease()
