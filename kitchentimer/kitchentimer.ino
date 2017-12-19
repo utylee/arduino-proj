@@ -3,13 +3,15 @@
 #include "SevenSegmentExtended.h"
 #include "toneAC.h"
 //#include "toneAC2.h"
-#include "Timer.h"
+//#include "Timer.h"
+#include "MsTimer2.h"
 
 int clock_hour = 10;
 int clock_min = 31; 
 int clock_sec = 0; 
 int clock_min_before = clock_min - 1; 
 int print_clock = true;
+int first_in = false;	// 키누르고 있을 때 들어가는 세팅 시 처음은 한번 keyup를 한 후 재차 누를 때로 세팅해야
 
 int btn_start = 4;		// 타이머 스타트 버튼
 int btn_inc = 5;		// 타이머 + 버튼
@@ -31,9 +33,11 @@ int btn_start_down = false;
 int btn_start_up = false; 
 int start_down_time = 0; 
 
-#define MODE_TIMER      1
-#define MODE_SETTING    2
-#define MODE_CLOCK		3
+#define MODE_TIMER			1
+#define MODE_SETTING		2
+#define MODE_CLOCK			3
+#define MODE_ADJUST_HOUR	4
+#define MODE_ADJUST_MIN		5
 
 #define PIN_CLK         2 
 #define PIN_DIO         3 
@@ -43,7 +47,7 @@ int mode = MODE_CLOCK;
 //int mode = MODE_SETTING;
 
 SevenSegmentExtended      display(PIN_CLK, PIN_DIO);
-Timer clock;
+//Timer clock;
 
 
 void setup()
@@ -59,7 +63,9 @@ void setup()
     display.setBacklight(100);
     display.print("   HELLO    ");
 
-	clock.every(1000, timego);	
+	//clock.every(1000, timego);	
+	MsTimer2::set(1000, timego);
+	MsTimer2::start();
 
 	//처음엔 5분 숫자를 표시
 }
@@ -93,10 +99,179 @@ void timego()
 
 void loop()
 {
-	clock.update();
+	// 시계세팅모드
+	if (mode == MODE_ADJUST_HOUR)
+	{
+		// 타이머를 먼저 중단합니다
+		MsTimer2::stop();
+		start_down_time = 0;
+
+		display.print(clock_hour);	
+
+		if (digitalRead(btn_inc) == LOW)
+		{
+			if(!first_in && btn_inc_down == false)
+			{
+				clock_hour += 1;
+				if (clock_hour >= 24)
+				{
+					clock_hour = 0;
+				}
+				btn_inc_down = true;
+				display.print("    ");
+				display.print(clock_hour);
+			}
+		}
+		else if (digitalRead(btn_inc) == HIGH)
+		{
+			if(first_in) first_in = false;
+
+			if(btn_inc_down == true)
+			{
+				btn_inc_down = false;
+			}
+		}
+
+		if (digitalRead(btn_dec) == LOW)
+		{
+			if(!first_in && btn_dec_down == false)
+			{
+				clock_hour -= 1;
+				if (clock_hour < 0)
+				{
+					clock_hour = 23;
+				}
+				btn_dec_down = true;
+				display.print("    ");
+				display.print(clock_hour);
+			}
+		}
+		else if (digitalRead(btn_dec) == HIGH)
+		{
+			if(first_in) first_in = false;
+
+			if(btn_dec_down == true)
+			{
+				btn_dec_down = false;
+			}
+		}
+
+		// 시간 설정 종료
+		if (digitalRead(btn_start) == LOW)
+		{
+			Serial.println("first LOW");
+			if(first_in) btn_start_down = false;
+			if(!first_in && btn_start_down == false)
+			{
+				btn_start_down = true;
+			}
+			
+		}
+		else if (digitalRead(btn_start) == HIGH)
+		{
+			if(first_in) first_in = false;
+
+			if(btn_start_down)
+			{
+				Serial.println("second LOW");
+				btn_start_down = false;
+				soundtickAC();
+				btn_start_down = false;
+				mode = MODE_ADJUST_MIN;
+				display.print("    ");
+
+				first_in = true;
+			}
+		}
+
+	}
+
+	else if (mode == MODE_ADJUST_MIN)
+	{
+
+		//Serial.println("come into min");
+		display.print(clock_hour*100 + clock_min);	
+
+		if (digitalRead(btn_inc) == LOW)
+		{
+			if(btn_inc_down == false)
+			{
+				clock_min += 1;
+				if (clock_min >= 60)
+				{
+					clock_min = 0;
+				}
+				btn_inc_down = true;
+				display.print("    ");
+				display.print(clock_hour*100 + clock_min);
+			}
+		}
+		else if (digitalRead(btn_inc) == HIGH)
+		{
+			if(btn_inc_down == true)
+			{
+				btn_inc_down = false;
+			}
+		}
+
+		if (digitalRead(btn_dec) == LOW)
+		{
+			if(btn_dec_down == false)
+			{
+				clock_min -= 1;
+				if (clock_min < 0)
+				{
+					clock_min = 59;
+				}
+				btn_dec_down = true;
+				display.print("    ");
+				display.print(clock_hour*100 + clock_min);
+			}
+		}
+		else if (digitalRead(btn_dec) == HIGH)
+		{
+			if(btn_dec_down == true)
+			{
+				btn_dec_down = false;
+			}
+		}
+
+		// 분 설정 종료
+		if (digitalRead(btn_start) == LOW)
+		{
+			Serial.println("first LOW");
+			if(first_in) btn_start_down = false;
+			if(!first_in && btn_start_down == false)
+				btn_start_down = true;
+		}
+		else if (digitalRead(btn_start) == HIGH)
+		{
+			if(first_in) first_in = false;
+
+			if(btn_start_down)
+			{
+				Serial.println("second LOW");
+				btn_start_down = false;
+				soundtickAC();
+				
+				mode = MODE_CLOCK;
+				print_clock = true;
+				display.print("    ");
+
+				clock_sec = 0;
+				// 다시 MsTimer 를 가동합니다
+				MsTimer2::start();
+
+				first_in = true;
+			}
+		}
+
+	}
+
+
 
 	// 시계모드
-	if (mode == MODE_CLOCK)
+	else if (mode == MODE_CLOCK)
 	{
 		if(print_clock || clock_min != clock_min_before)
 		{
@@ -105,13 +280,28 @@ void loop()
 			clock_min_before = clock_min;
 		}
 
-		// 아무버튼이나 누르면 세팅모드로 들어갑니다
+		// 아무버튼이나 누르면 타이머세팅모드로 들어갑니다
 		if(digitalRead(btn_start) == LOW || digitalRead(btn_inc) == LOW || digitalRead(btn_dec) == LOW)
 		//if(digitalRead(btn_start) == LOW )
 		{
 			if(btn_start_down == false)
 			{
 				btn_start_down = true;
+				start_down_time = millis();	// 길게 누름을 포착하기 위하여 처음 눌렸을 때의 시간을 기록합니다
+				Serial.println("down_start");
+				Serial.println(start_down_time);
+			}
+			else if(btn_start_down == true)
+			{
+				cur = millis();
+				// 길게누르고 있으면  시계 세팅모드로 진입합니다
+				if(start_down_time != 0 && cur - start_down_time >= 2000)
+				{
+					display.print("    ");
+					btn_start_down = false;
+					first_in = true;
+					mode = MODE_ADJUST_HOUR;
+				}
 			}
 		}
 		else if(digitalRead(btn_start) == HIGH )
@@ -123,6 +313,27 @@ void loop()
 				mode = MODE_SETTING;
 				soundtickAC();
 				//soundtick();
+
+				/*
+				cur = millis();
+				Serial.println("down_end");
+				Serial.println(cur);
+
+				if(cur - start_down_time >= 1500)
+				{
+					btn_start_down = false;
+					display.print("TIME");
+				}
+				// 타이미 세팅모드로
+				else
+				{
+					btn_start_down = false;
+					display.print("    ");
+					mode = MODE_SETTING;
+					soundtickAC();
+					//soundtick();
+				}
+				*/
 			}
 
 		}
@@ -162,6 +373,10 @@ void loop()
 			//mode = MODE_SETTING;
 			mode = MODE_CLOCK;
 			print_clock = true;
+			btn_start_down = false;
+			start_down_time = 0;
+			minute = 5;
+			second = minute * 60;
 		}
 
 		// Cancel 취소모드 <-- 버튼을 길게 누르고 있을 시
@@ -256,7 +471,6 @@ void loop()
 			
         }
 
-
 		if(digitalRead(btn_start) == LOW)
         {
 			//display.print(" END");
@@ -312,7 +526,7 @@ void soundstartAC()
 
     //tone(pinBuzz, tones[0]);
     toneAC(tones[0]);
-    delay(200);
+    delay(150);
     //noTone(pinBuzz);
 	toneAC();
 
@@ -324,7 +538,7 @@ void soundstartAC()
 
     //tone(pinBuzz, tones[2]);
     toneAC(tones[2]);
-    delay(200);
+    delay(150);
     //noTone(pinBuzz);
 	toneAC();
 
@@ -336,7 +550,7 @@ void soundstartAC()
 
     //tone(pinBuzz, tones[4]);
     toneAC(tones[4]);
-    delay(600);
+    delay(400);
     //noTone(pinBuzz);
 	toneAC();
 }
