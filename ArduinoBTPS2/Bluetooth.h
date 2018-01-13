@@ -32,8 +32,7 @@ public:
 	~Bluetooth();
 
 	void sendMouseState(uint8_t btnState, uint8_t deltaX, uint8_t deltaY, uint8_t deltaZ);
-	//void sendKeyboardState(uint8_t modifiers, uint8_t * keysPressed);
-  void sendKeyboardState(uint8_t modifiers, char keysPressed);
+	void sendKeyboardState(uint8_t modifiers, uint8_t * keysPressed);
 	void sendConsumerReport(uint16_t consumerKeys);
 	void getKeyboardLEDState();
 

@@ -26,11 +26,31 @@
 */
    
 #include <PS2Keyboard.h>
+#include "Bluetooth.h"
+#include "BTKeyCodes.h"
+#include "KeyTable.h"
 
-const int DataPin = 8;
-const int IRQpin =  5;
+#define _DEBUG
+
+const int DataPin = 4;
+const int IRQpin =  3;
 
 PS2Keyboard keyboard;
+
+#ifdef _DEBUG
+#define HARDWARE_SERIAL_RATE 38400
+#else
+#define HARDWARE_SERIAL_RATE 115200
+#endif
+
+#ifdef _DEBUG
+#define BLUETOOTH_DEBUG_RX 7
+#define BLUETOOTH_DEBUG_TX 8
+#define BLUETOOTH_DEBUG_BAUD 115200
+Bluetooth bluetooth(BLUETOOTH_DEBUG_BAUD, true, BLUETOOTH_DEBUG_RX, BLUETOOTH_DEBUG_TX);
+#else
+Bluetooth bluetooth(HARDWARE_SERIAL_RATE, false, 0, 0);
+#endif
 
 void setup() {
   delay(1000);
@@ -43,7 +63,18 @@ void loop() {
   if (keyboard.available()) {
     
     // read the next key
-    char c = keyboard.read();
+    //char c = keyboard.read();
+    char c = keyboard.readScanCode();
+	//c = KeyTable::getBTCode(c, true);
+
+	/*
+	if(c == 0xFFFFFFF0)
+	{
+		Serial.println("kakakakakaa");
+		bluetooth.sendKeyboard(BTKC_NONE);
+		return;
+	}
+	*/
     
     // check for some of the special keys
     if (c == PS2_ENTER) {
@@ -69,7 +100,14 @@ void loop() {
     } else {
       
       // otherwise, just print all normal characters
-      Serial.print(c);
+		if(c)
+		{
+			Serial.println(c, HEX);
+			c = KeyTable::getBTCode(c, false);
+			Serial.println(c);
+			//bluetooth.sendKeyboard(c);
+			bluetooth.sendKeyboardState(keyboard.getKeyModifiers(), keyboard.getKeysPressed());
+		}
     }
   }
 }

@@ -25,8 +25,6 @@
 #include "Bluetooth.h"
 #include "PS2Keyboard.h"
 
-
-
 Bluetooth::Bluetooth(uint32_t baudRate, bool useSoftwareSerial, uint8_t softwareRXPin, uint8_t softwareTXPin)
 {
 	_useSoftwareSerial = useSoftwareSerial;
@@ -62,27 +60,17 @@ void Bluetooth::sendMouseState(uint8_t btnState, uint8_t deltaX, uint8_t deltaY,
 	_serialStream->write(deltaZ);
 }
 
-//void Bluetooth::sendKeyboardState(uint8_t modifiers, uint8_t * keysPressed)
-void Bluetooth::sendKeyboardState(uint8_t modifiers, char keysPressed)
+void Bluetooth::sendKeyboardState(uint8_t modifiers, uint8_t * keysPressed)
 {
-	_serialStream->println("9");
-	_serialStream->write((uint8_t)9);
-    /*
 	_serialStream->write((uint8_t)0xFD);
 	_serialStream->write((uint8_t)0x09);
 	_serialStream->write((uint8_t)0x01);
-	_serialStream->write((uint8_t)0x00);
-
-    _serialStream->write((uint8_t)keysPressed);
-    */
-  /*
 	_serialStream->write(modifiers);
 	_serialStream->write((uint8_t)0x00);
 	for (uint8_t i = 0; i < MAX_KEYS_PRESSED; ++i)
 	{
 		_serialStream->write(keysPressed[i]);
 	}
- */
 }
 
 void Bluetooth::sendConsumerReport(uint16_t consumerKeys)

@@ -20,111 +20,85 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-//#include "PS2Mouse.h"
-//#include "PS2Keyboard.h"
-#include <PS2Keyboard.h>
+#include "PS2Mouse.h"
+#include "PS2Keyboard.h"
 #include "Bluetooth.h"
-#include <Debug.h>
 
-#define MOUSE_CLOCK 6
-#define MOUSE_DATA 7
+//#define MOUSE_CLOCK 2
+//#define MOUSE_DATA 3
 #define KEYBOARD_CLOCK 3
 #define KEYBOARD_DATA 4
 
 #define _DEBUG 1
 
 #if _DEBUG
-#define HARDWARE_SERIAL_RATE 9600
+#define HARDWARE_SERIAL_RATE 38400
 #else
 #define HARDWARE_SERIAL_RATE 115200
 #endif
 
 //PS2Mouse mouse(MOUSE_CLOCK, MOUSE_DATA);
-//PS2Keyboard keyboard(KEYBOARD_CLOCK, KEYBOARD_DATA);
-PS2Keyboard keyboard;
+PS2Keyboard keyboard(KEYBOARD_CLOCK, KEYBOARD_DATA);
 
 #if _DEBUG
 #define BLUETOOTH_DEBUG_RX 7
 #define BLUETOOTH_DEBUG_TX 8
-#define BLUETOOTH_DEBUG_BAUD 9600
-//Bluetooth bluetooth(BLUETOOTH_DEBUG_BAUD, true, BLUETOOTH_DEBUG_RX, BLUETOOTH_DEBUG_TX);
-//Bluetooth bluetooth(115200, false, 0, 0);
-Bluetooth bluetooth(9600, true, 7, 8);
+#define BLUETOOTH_DEBUG_BAUD 115200
+Bluetooth bluetooth(BLUETOOTH_DEBUG_BAUD, true, BLUETOOTH_DEBUG_RX, BLUETOOTH_DEBUG_TX);
 #else
-//Bluetooth bluetooth(115200, false, 0, 0);
-//Bluetooth bluetooth(9600, false, 0, 0);
-Bluetooth bluetooth(9600, true, 7, 8);
-//Bluetooth bluetooth(HARDWARE_SERIAL_RATE, false, 0, 0);
+Bluetooth bluetooth(HARDWARE_SERIAL_RATE, false, 0, 0);
 #endif
 
 void setup()
 {
-  delay(1000);
 #if _DEBUG
-    //Serial.begin(HARDWARE_SERIAL_RATE);
-    Serial.begin(9600);
-	Serial.println("utylee asset presents");
+	Serial.begin(HARDWARE_SERIAL_RATE);
 	Serial.println("Setup started");
+#endif
+
+	delay(250);
+
+#if _DEBUG
+	//Serial.println("Initializing mouse...");	
 #endif
 
 	//bool mouseStatus = mouse.init();
 
 #if _DEBUG
-  /*
+	/*
 	if (mouseStatus)
 		Serial.println("Mouse detected!");
 	else
 		Serial.println("No mouse detected.");
-  */
-    //BREAKPOINT();
+	*/
+
 	Serial.println("Initializing keyboard...");
 #endif
 
-	//bool keyboardStatus = keyboard.init();
-  keyboard.begin(KEYBOARD_DATA, KEYBOARD_CLOCK);
+	bool keyboardStatus = keyboard.init();
 
 #if _DEBUG
-  /*
 	if (keyboardStatus)
 		Serial.println("Keyboard detected!");
 	else
 		Serial.println("No keyboard detected.");
 
 	Serial.println("Setup complete");
- */
 #endif
 }
 
 void loop()
 {
-  /*
+	if (keyboard.available())
+	{
+		bluetooth.sendKeyboardState(keyboard.getKeyModifiers(), keyboard.getKeysPressed());
+	}
+
+	/*
 	if (mouse.available())
 	{
 		bluetooth.sendMouseState(mouse.getBtnState(), mouse.getDeltaX(), -mouse.getDeltaY(), -mouse.getDeltaZ());
 	}
- */
-
-
-
-  /*
-  if(keyboard.available())
-  {
-    char c = keyboard.read();
-    Serial.print(c);
-    //Serial.println("good");
-  }
-  */
-
-  
-	if (keyboard.available())
-	{
-		//bluetooth.sendKeyboardState(keyboard.getKeyModifiers(), keyboard.getKeysPressed());
-   char c = keyboard.read();
-   #if _DEBUG
-   Serial.print(c);
-   #endif
-    bluetooth.sendKeyboardState(0, c);
-	}
-  
+	*/
 
 }

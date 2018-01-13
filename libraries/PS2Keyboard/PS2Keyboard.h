@@ -34,6 +34,8 @@
 
 #include "utility/int_pins.h"
 
+#define MAX_KEYS_PRESSED 6
+
 // Every call to read() returns a single byte for each
 // keystroke.  These configure what byte will be returned
 // for each "special" key.  To ignore a key, use zero.
@@ -225,6 +227,15 @@ class PS2Keyboard {
      */
     static int read();
     static int readUnicode();
+	//bool tryRead();
+	static bool processKey(uint8_t btCode, bool isPressed);
+
+	static uint8_t _keyPressed[MAX_KEYS_PRESSED];	//stored as btCodes
+	static uint8_t _keyModifiers;
+	static uint16_t _consumerKeys;
+	static bool _consumerKeysChanged;
+	uint8_t getKeyModifiers();
+	uint8_t * getKeysPressed();
 };
 
 #endif
