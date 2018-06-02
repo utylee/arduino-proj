@@ -6,6 +6,7 @@
 //#include "Timer.h"
 #include "MsTimer2.h"
 
+
 int clock_hour = 10;
 int clock_min = 31; 
 int clock_sec = 0; 
@@ -15,10 +16,15 @@ int first_in_start = false;	// 키누르고 있을 때 들어가는 세팅 시 �
 int first_in_inc = false;	
 int first_in_dec = false;	
 
+// pinouts
+#define PIN_CLK         2 
+#define PIN_DIO         3 
+
 int btn_start = 4;		// 타이머 스타트 버튼
 int btn_inc = 5;		// 타이머 + 버튼
 int btn_dec = 6;		// 타이머 - 버튼
 int pinBuzz = 9;
+/* toneAC pinout : Pins  9 & 10 - ATmega328, ATmega128, ATmega640, ATmega8, Uno, Leonardo, etc */
 
 int init_min = 7;		// 기본 설정 분
 int minute = init_min;			// 분
@@ -41,8 +47,6 @@ int start_down_time = 0;
 #define MODE_ADJUST_HOUR	4
 #define MODE_ADJUST_MIN		5
 
-#define PIN_CLK         2 
-#define PIN_DIO         3 
 
 
 int mode = MODE_CLOCK;

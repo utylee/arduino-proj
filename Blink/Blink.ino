@@ -26,8 +26,9 @@
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
-  Serial.begin(115200);
-  Serial.println("hi");
+  //Serial.begin(115200);
+  Serial1.begin(9600);
+  Serial1.println("hi");
 }
 
 // the loop function runs over and over again forever
@@ -36,4 +37,5 @@ void loop() {
   delay(500);                       // wait for a second
   digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
   delay(500);                       // wait for a second
+  Serial1.println("hi");
 }
