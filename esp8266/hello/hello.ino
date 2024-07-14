@@ -20,10 +20,22 @@ const int led = 13;
 int pinFan = 5;
 
 void handleRoot() {
-  Serial.println("came into handle");
+  /* Serial.println("came into handle"); */
+  /* digitalWrite(pinFan, LOW); */
   digitalWrite(led, 1);
   /* server.send(200, "text/plain", "hello from esp8266!\r\n"); */
   server.send(200, "text/plain", "cdw's cleanest virgina!\r\n");
+  digitalWrite(led, 0);
+}
+
+void handleOff() {
+  /* Serial.println("came into off"); */
+  delay(200);
+  digitalWrite(pinFan, HIGH);
+  delay(200);
+  /* analogWrite(pinFan, 100); */
+  digitalWrite(led, 1);
+  server.send(200, "text/plain", "cdw's large pink nipple!\r\n");
   digitalWrite(led, 0);
 }
 
@@ -48,6 +60,7 @@ void setup(void) {
 
   //digitalWrite(pinFan, HIGH);
   pinMode(pinFan, OUTPUT);
+  /* digitalWrite(pinFan, HIGH); */
   digitalWrite(pinFan, LOW);
 
   Serial.begin(115200);
@@ -69,6 +82,7 @@ void setup(void) {
   if (MDNS.begin("esp8266")) { Serial.println("MDNS responder started"); }
 
   server.on("/", handleRoot);
+  server.on("/off", handleOff);
 
   server.on("/inline", []() {
     server.send(200, "text/plain", "this works as well");
