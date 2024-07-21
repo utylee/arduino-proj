@@ -1,10 +1,14 @@
 
-#include "SevenSegmentTM1637.h"
-#include "SevenSegmentExtended.h"
-#include "toneAC.h"
+/* #include "SevenSegmentTM1637.h" */
+#include <SevenSegmentTM1637.h>
+/* #include "SevenSegmentExtended.h" */
+#include <SevenSegmentExtended.h>
+/* #include "toneAC.h" */
+#include <toneAC.h>
 //#include "toneAC2.h"
 //#include "Timer.h"
-#include "MsTimer2.h"
+/* #include "MsTimer2.h" */
+#include <MsTimer2.h>
 
 
 int clock_hour = 10;
