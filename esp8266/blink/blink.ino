@@ -17,7 +17,7 @@ int pinFan = D1;
 int floatingValue = 0;
 
 void setup(){
-	/* Serial.begin(115200); */
+	Serial.begin(115200);
 	pinMode(pinFan, OUTPUT);
 	pinMode(LED_BUILTIN, OUTPUT);
 	analogWriteRange(100); // to have a range 1 - 100 for the fan
@@ -31,7 +31,7 @@ void loop(){
 	/* digitalWrite(pinFan, LOW); */
 	/* analogWrite(pinFan, 253); */
 	/* analogWrite(pinFan, 1022); */
-	/* for (int i=0; i< 98;i++) */
+	/* for (int i=1; i< 98;i++) */
 
 	/* for (int i=85; i > 79;i=i-1) */
 	/* { */
@@ -44,6 +44,8 @@ void loop(){
 	analogWrite(LED_BUILTIN, 98);
 
 	analogWrite(pinFan, 95);
+	Serial.println("95");
+	analogWrite(LED_BUILTIN, 78);
 	delay(5000);
 	analogWrite(pinFan, 0);
 	delay(3000);
@@ -65,6 +67,8 @@ void loop(){
 
 
 	analogWrite(pinFan, 52);
+	Serial.println("52");
+	analogWrite(LED_BUILTIN, 98);
 	delay(5000);
 	analogWrite(pinFan, 0);
 	/* analogWrite(LED_BUILTIN, 0); */
